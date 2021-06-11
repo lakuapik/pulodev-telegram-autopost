@@ -1,0 +1,26 @@
+name: Autopost
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Autopost
+        uses: ./.github/action-autopost/
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v7.0.0
+        with:
+          message: "update last posted content"
+          author_name: github-actions
+          author_email: 41898282+github-actions[bot]@users.noreply.github.com
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

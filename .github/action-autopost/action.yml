@@ -1,0 +1,8 @@
+name: Autopost
+description: Posting otomatis konten terbaru dari pulo.dev
+
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: ${{ github.action_path }}/autopost.sh

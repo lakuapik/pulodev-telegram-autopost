@@ -12,18 +12,30 @@ fi
 
 cp /tmp/response content
 
-for row in $(cat content | jq -r '.data | reverse | .[] | @base64' ); do
+ready_content_ids=()
+
+for row in $(cat content | jq -r '.data[] | @base64' ); do
+
+    content_id=$(echo $row | base64 -d | jq -r '.id')
+    last_posted_id=$(cat last_posted_id)
+
+    if [ $last_posted_id -eq $content_id ] ; then
+        break
+    fi
+
+    ready_content_ids+="$content_id "
+
+done
+
+reversed_ready_content_ids=$(echo "${ready_content_ids[@]}" | tac -s ' ')
+
+for id in $reversed_ready_content_ids; do
+
+    content=$(cat content | jq -r ".data[] | select(.id == $id) | @base64")
 
     _content() {
-        echo $row | base64 -d
+        echo $content | base64 -d
     }
-
-    content_id=$(_content | jq -r '.id')
-
-    if [ $(cat last_posted_id) -eq $content_id ] ; then
-        echo -e "\n\n >> Aman, tidak ada yang perlu di posting lagi."
-        exit
-    fi
 
     title=$(_content | jq -r '.title | values')
     url=$(_content | jq -r '.url | values')
@@ -32,16 +44,26 @@ for row in $(cat content | jq -r '.data | reverse | .[] | @base64' ); do
     media=$(_content | jq -r '.media | values')
     contributor=$(_content | jq -r '.contributor | values')
 
+    text="
+[${title}](${url})* - ${owner} *
 
-    text="[$title]($url)\* - $owner \* \n\n $body \n\n \[$media]: $url \n\n _dimasukan oleh ${contributor}_ \n\n"
+${body}
+
+\[${media}]: ${url}
+
+_dimasukan oleh ${contributor}._
+"
 
     curl -s -X POST https://api.telegram.org/bot$BOT_TOKEN/sendMessage \
-    -d "chat_id=@pulodev" \
-    -d "parse_mode=markdown" \
-    -d "text=$text"
+        -d "chat_id=@pulodev" \
+        -d "parse_mode=markdown" \
+        -d "text=$text" \
+    > /dev/null
 
-    echo $content_id > last_posted_id
-    echo -e "Sukses posting id: ${content_id} judul: ${title}"
+    echo $id > last_posted_id
+    echo -e "Sukses posting id: ${id} judul: ${title}"
+
+    exit;
 
 done
 

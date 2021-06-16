@@ -63,8 +63,6 @@ _dimasukan oleh ${contributor}._
     echo $id > last_posted_id
     echo -e "Sukses posting id: ${id} judul: ${title}"
 
-    exit;
-
 done
 
 echo -e "\n\n >> Mantab, semua kelar."

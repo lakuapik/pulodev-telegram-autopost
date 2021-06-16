@@ -1,3 +1,7 @@
 # PuloDev Telegram Autopost
 
-Auto posting ke t.me/pulodev dengan bantuan github actions dan @pulodev_bot.
+Auto posting ke kanal telegram @pulodev dengan bantuan github actions.
+
+# Kredit
+
+Terima kasih https://pulo.dev untuk akses API yang terbuka untuk publik.
